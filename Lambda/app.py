@@ -20,14 +20,6 @@ app = FastAPI(
     description="POST text → get MBTI classification + word attributions (score & percentage) via Integrated Gradients."
 )
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 class PredictIn(BaseModel):
     text: constr(min_length=1)
     n_steps: int = Field(IG_STEPS, ge=1, le=1024)
