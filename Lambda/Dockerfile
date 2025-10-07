@@ -4,25 +4,23 @@ ENV PIP_NO_CACHE_DIR=1 PIP_DISABLE_PIP_VERSION_CHECK=1 \
     TRANSFORMERS_CACHE=/tmp/hf HF_HOME=/tmp/hf \
     TOP_K=10 IG_STEPS=120 USE_GPU=false MODEL_CHOICE=bert-base-uncased HF_USER=yamazakikakuyo
 
-# OS deps kept tiny; no compilers by default
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    wget ca-certificates && \
-    rm -rf /var/lib/apt/lists/*
+# Always upgrade pip tooling first
+RUN python -m pip install --upgrade pip setuptools wheel
 
+# Install CPU-only torch from the PyTorch index (wheels provided)
+RUN pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu torch==2.4.1
 
-# 1) install torch CPU wheel first (smaller, avoids CUDA)
-RUN python -m pip install --upgrade pip && \
-    pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu torch==2.4.1
+# Pre-install binary wheels that commonly trigger source builds
+# Pin NumPy to a wheel-known version; Tokenizers is a Rust ext → ensure wheel
+RUN pip install --no-cache-dir --only-binary=:all: \
+    numpy==1.26.4 tokenizers==0.20.3
 
-# 2) install the rest
+# Now install the rest; wheel-only to prevent any build from source
 COPY requirements.txt .
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --only-binary=:all: -r requirements.txt
 
-# 3) download tiny NLTK data
-RUN python -c "import nltk; nltk.download('stopwords', quiet=True)"
-
+# Your app code
 COPY . .
 
-# Lambda looks for the module.function specified here
+# Lambda looks for module.function here
 CMD ["app.handler"]
