@@ -39,5 +39,5 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=20s --retries=3 \
   CMD wget -qO- http://127.0.0.1:${PORT}/health || exit 1
 
 # Pass HF_TOKEN at runtime (env), don't bake it in the image.
-CMD ["uvicorn", "app_ori:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
 

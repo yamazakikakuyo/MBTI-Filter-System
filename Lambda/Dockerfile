@@ -14,4 +14,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Lambda looks for the module.function specified here
-CMD ["app_lambda.handler"]
+CMD ["app.handler"]
