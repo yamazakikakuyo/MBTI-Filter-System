@@ -7,12 +7,14 @@ import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
 from captum.attr import IntegratedGradients
 import nltk
+nltk.data.path.append(0,'/usr/share/nltk_data')
+
 from nltk.corpus import stopwords
 
 try:
     _ = stopwords.words("english")
 except Exception:
-    nltk.download("stopwords", quiet=True)
+    nltk.download("stopwords", quiet=True, download_dir='/usr/share/nltk_data')
 
 class MBTIPipeline:
     def __init__(self, model_choice="bert-base-uncased", user="yamazakikakuyo", use_gpu=False):
